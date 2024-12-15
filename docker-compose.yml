@@ -1,0 +1,14 @@
+version: '3'
+services:
+  soap:
+    build: ./soap
+    ports:
+      - "8080:8080"
+  rest:
+    build: ./rest
+    ports:
+      - "3000:3000"
+  inventory:
+    build: ./microservice
+    ports:
+      - "4000:4000"

@@ -1,0 +1,4 @@
+[
+    {"room_id": 101, "room_type": "single", "available_date": "2024-12-15", "status": "available"},
+    {"room_id": 102, "room_type": "double", "available_date": "2024-12-15", "status": "available"}
+]

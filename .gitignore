@@ -1,0 +1,6 @@
+api-rest/node_modules/
+api-rest/.env
+microservice/target/
+microservice/.env
+web-soap-service/env/
+web-soap-service/.env
