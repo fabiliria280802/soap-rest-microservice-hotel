@@ -1,9 +1,3 @@
----
-title: README
-layout: template
-filename: README.md
----
-
 # LuxuryStay Hotel Reservation System
 
 This project is a solution for centralized reservation and room availability management for the **LuxuryStay** hotel chain. The system is divided into three independent services that work together:

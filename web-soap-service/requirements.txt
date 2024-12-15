@@ -1,0 +1,5 @@
+spyne
+flask
+mysql-connector-python
+python-dotenv
+lxml 

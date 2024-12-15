@@ -1,9 +1,3 @@
----
-title: README-ESP
-layout: template
-filename: README-ESP.md
----
-
 # Sistema de reservación de hoteles LuxuryStay
 
 Este proyecto es una solución para la gestión centralizada de reservas y disponibilidad de habitaciones para la cadena hotelera **LuxuryStay**. El sistema está dividido en tres servicios independientes que trabajan en conjunto:

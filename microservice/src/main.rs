@@ -1,24 +1,35 @@
-use actix_web::{web, App, HttpServer};
-use db::get_db_pool;
-use handlers::{create_room, update_room_status};
+use actix_web::{web, App, HttpServer}; // Importa App, HttpServer y web
+use db::initialize_database;          // Asegúrate de importar initialize_database
+use handlers::{create_room, update_room_status}; // Importa los handlers
 
-mod db;
+mod db;        // Asegúrate de tener estos módulos declarados
 mod handlers;
 mod models;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let db_pool = get_db_pool().await;
+    match initialize_database().await {
+        Ok(db_pool) => {
+            println!(" ✅ Database initialized, starting server...");
 
-    HttpServer::new(move || {
-        App::new()
-            .app_data(web::Data::new(db_pool.clone()))
-            .route("/rooms", web::post().to(create_room))
-            .route("/rooms/{room_id}", web::patch().to(update_room_status))
-    })
-    .bind(("127.0.0.1", 4000))?
-    .run()
-    .await
+            let server_address = "127.0.0.1";
+            let server_port = 4000;
+
+            println!(" 🚀 Server running at http://{}:{}", server_address, server_port);
+
+            HttpServer::new(move || {
+                App::new()
+                    .app_data(web::Data::new(db_pool.clone()))
+                    .route("/rooms", web::post().to(create_room))
+                    .route("/rooms/{room_id}", web::patch().to(update_room_status))
+            })
+            .bind((server_address, server_port))?
+            .run()
+            .await
+        }
+        Err(err) => {
+            eprintln!("Failed to initialize database: {:?}", err);
+            std::process::exit(1);
+        }
+    }
 }
-
-
