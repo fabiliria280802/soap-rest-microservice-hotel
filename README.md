@@ -21,7 +21,7 @@ soap-rest-microservice-hotel/
 ---
 
 ## **Prerequisites**
-- Node.js (for api-rest and microservice)
+- Node.js (for api-rest)
 - Cargo (for microservice)
 - Python 3.x (for web-soap-service)
 - Docker (optional, for containers)
