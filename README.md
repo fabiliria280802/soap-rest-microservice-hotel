@@ -6,7 +6,7 @@ This project is a solution for centralized reservation and room availability man
 2. **REST API (Reservation Management)**: Manages the creation, query, and cancellation of reservations.
 3. **Microservice (Inventory Management)**: Allows registering and updating room status.
 
-Note: This project is developed in Node.js, Python, and Rust. If you want to see the project in Spanish, you can check the [README-ESP.md](README-ESP.md) file.
+Note: This project is developed in Node.js and Rust. If you want to see the project in Spanish, you can check the [README-ESP.md](README-ESP.md) file.
 ---
 
 ## **Project Structure**
