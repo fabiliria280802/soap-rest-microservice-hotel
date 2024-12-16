@@ -62,11 +62,11 @@ Note:
 
 **Steps for web-soap-service**
 - `cd web-soap-service`
-- `pip install -r requirements.txt`
+- `npm install`
 
 ---
 
 ## **Running Tests**
 - **REST API**: `npm run test` (in the api-rest directory)
 - **Microservice**: `cargo test` (in the microservice directory)
-- **SOAP Web Service**: `python -m web_soap_service.app` (in the web-soap-service directory)
+- **SOAP Web Service**: `npm run test` (in the web-soap-service directory)
