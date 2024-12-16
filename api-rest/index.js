@@ -15,6 +15,7 @@ async function startServer() {
 
         app.listen(3000, () => {
             console.log(' 🚀 REST API running on http://localhost:3000');
+            console.log(' 📝 REST endpoint: http://localhost:3000/reservations');
         });
     } catch (error) {
         console.error('Failed to start server:', error);

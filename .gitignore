@@ -1,6 +1,8 @@
 api-rest/node_modules/
 api-rest/.env
+api-rest/tests/setup.js
+web-soap-service/tests/setup.js
 microservice/target/
 microservice/.env
 web-soap-service/env/
-web-soap-service/.env
+web-soap-service/node_modules/

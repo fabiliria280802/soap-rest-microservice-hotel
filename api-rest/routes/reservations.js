@@ -9,32 +9,96 @@ function createRouter(pool) {
         const { startDate, endDate, roomType, customerName, roomNumber } = req.body;
 
         try {
-            // Llamada al servicio SOAP
-            const response = await axios.post('http://localhost:8080/availability', {
-                startDate, endDate, roomType
+            // 1. Verificar disponibilidad con el servicio SOAP
+            const soapResponse = await axios.post('http://localhost:8080/availability', {
+                startDate,
+                endDate,
+                roomType
+            }, {
+                headers: {
+                    'Content-Type': 'application/soap+xml',
+                    'SOAPAction': 'check_availability'
+                }
             });
-            const availableRooms = response.data; // Procesar XML si es necesario
 
-            if (availableRooms) {
-                const [result] = await pool.execute(
-                    'INSERT INTO reservations (room_number, customer_name, start_date, end_date, status) VALUES (?, ?, ?, ?, ?)',
-                    [roomNumber, customerName, startDate, endDate, 'active']
-                );
+            // Verificar si hay habitaciones disponibles
+            if (!soapResponse.data || !soapResponse.data.length) {
+                return res.status(400).json({ message: "No rooms available for the selected dates" });
+            }
 
-                res.status(201).json({
-                    id: result.insertId,
+            // 2. Obtener detalles de la habitación del microservicio
+            const microserviceResponse = await axios.get(`http://localhost:4000/rooms/${roomNumber}`);
+            const roomDetails = microserviceResponse.data;
+
+            // Verificar si el tipo de habitación coincide
+            if (roomDetails.room_type !== roomType) {
+                return res.status(400).json({ 
+                    message: "Room type mismatch. Selected room is not of the requested type" 
+                });
+            }
+
+            // 3. Crear la reserva en la base de datos
+            const [result] = await pool.execute(
+                `INSERT INTO reservations (
+                    room_number, 
+                    room_type,
+                    customer_name, 
+                    start_date, 
+                    end_date, 
+                    status
+                ) VALUES (?, ?, ?, ?, ?, ?)`,
+                [
                     roomNumber,
+                    roomType,
                     customerName,
                     startDate,
                     endDate,
-                    status: 'active'
-                });
-            } else {
-                res.status(400).json({ message: "No rooms available" });
-            }
+                    'active'
+                ]
+            );
+
+            // 4. Actualizar el estado de la habitación en el microservicio
+            await axios.patch(
+                `http://localhost:4000/rooms/${roomNumber}`,
+                { status: 'occupied' }
+            );
+
+            // 5. Devolver la reserva creada
+            res.status(201).json({
+                id: result.insertId,
+                roomNumber,
+                roomType,
+                customerName,
+                startDate,
+                endDate,
+                status: 'active'
+            });
+
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: "Error processing reservation" });
+            console.error('Error creating reservation:', error);
+            
+            // Manejar diferentes tipos de errores
+            if (error.response) {
+                // Error de respuesta de algún servicio
+                return res.status(error.response.status).json({
+                    message: "Service error",
+                    details: error.response.data
+                });
+            }
+            
+            if (error.request) {
+                // Error de conexión
+                return res.status(503).json({
+                    message: "Service unavailable",
+                    details: "Could not connect to required services"
+                });
+            }
+            
+            // Error general
+            res.status(500).json({
+                message: "Error processing reservation",
+                details: error.message
+            });
         }
     });
 

@@ -21,7 +21,7 @@ async function initializeDatabase() {
             password: dbConfig.password
         });
 
-        console.log('Conectado al servidor MySQL...');
+        console.log(' ✅ Conectado al servidor MySQL...');
 
         await connection.query(`CREATE DATABASE IF NOT EXISTS ${dbConfig.database}`);
         console.log(`Base de datos ${dbConfig.database} verificada/creada`);
@@ -32,6 +32,7 @@ async function initializeDatabase() {
             CREATE TABLE IF NOT EXISTS reservations (
                 reservation_id INT PRIMARY KEY AUTO_INCREMENT,
                 room_number INT NOT NULL,
+                room_type VARCHAR(50) NOT NULL,
                 customer_name VARCHAR(100) NOT NULL,
                 start_date DATE NOT NULL,
                 end_date DATE NOT NULL,
@@ -45,18 +46,13 @@ async function initializeDatabase() {
 
         if (existingData[0].count === 0) {
             await connection.query(`
-                INSERT INTO reservations (room_number, customer_name, start_date, end_date, status)
+                INSERT INTO reservations (room_number, room_type, customer_name, start_date, end_date, status)
                 VALUES
-                    (101, 'John Doe', '2024-12-20', '2024-12-22', 'active'),
-                    (102, 'Jane Smith', '2024-12-25', '2024-12-27', 'active'),
-                    (103, 'Alice Johnson', '2024-12-30', '2024-12-31', 'active'),
-                    (104, 'Bob Brown', '2025-01-05', '2025-01-07', 'active'),
-                    (105, 'Charlie Davis', '2025-01-10', '2025-01-12', 'active'),
-                    (106, 'Diana Garcia', '2025-01-15', '2025-01-17', 'active'),
-                    (107, 'Ethan Martinez', '2025-01-20', '2025-01-22', 'active'),
-                    (108, 'Fiona Lopez', '2025-01-25', '2025-01-27', 'active'),
-                    (109, 'George Hernandez', '2025-01-30', '2025-02-01', 'active'),
-                    (110, 'Hannah Rodriguez', '2025-02-05', '2025-02-07', 'active')
+                    (101, 'single', 'John Doe', '2024-12-20', '2024-12-22', 'active'),
+                    (102, 'double', 'Jane Smith', '2024-12-25', '2024-12-27', 'active'),
+                    (103, 'suite', 'Alice Johnson', '2024-12-30', '2024-12-31', 'active'),
+                    (104, 'single', 'Bob Brown', '2025-01-05', '2025-01-07', 'active'),
+                    (105, 'double', 'Charlie Davis', '2025-01-10', '2025-01-12', 'active')
             `);
             console.log('Datos de prueba insertados');
         }

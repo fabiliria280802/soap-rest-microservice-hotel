@@ -7,13 +7,9 @@ SOAP (Simple Object Access Protocol) is a protocol that defines a standard way f
 ## How it works?
 SOAP uses XML to encode messages and can be used with various transport protocols, such as HTTP, SMTP, and JMS. SOAP messages are made up of an envelope, header, body, and fault.
 
-## How to run (windows powershell)
-1. Create a virtual environment: `python -m venv env`
-2. Activate the virtual environment: `.\env\Scripts\activate`
-3. Install the dependencies: `pip install -r requirements.txt`
-4. Run the app: `python -m flask --app .\app.py run`
+## How to run
 
 ```bash
-pip install -r requirements.txt
-python app.py
+npm install
+npm run start
 ```
