@@ -4,11 +4,34 @@ const axios = require('axios');
 function createRouter(pool) {
     const router = express.Router();
 
+    // Verificar si la habitación ya está reservada
+    async function isRoomAlreadyBooked(pool, roomNumber, startDate, endDate) {
+        const [rows] = await pool.execute(
+            `SELECT COUNT(*) as count 
+             FROM reservations 
+             WHERE room_number = ? 
+             AND status = 'active'
+             AND ((start_date BETWEEN ? AND ?) 
+                  OR (end_date BETWEEN ? AND ?)
+                  OR (start_date <= ? AND end_date >= ?))`,
+            [roomNumber, startDate, endDate, startDate, endDate, startDate, endDate]
+        );
+        return rows[0].count > 0;
+    }
+
     // Crear reserva
     router.post('/', async (req, res) => {
         const { startDate, endDate, roomType, customerName, roomNumber } = req.body;
 
         try {
+            // Verificar si la habitación ya está reservada
+            const isBooked = await isRoomAlreadyBooked(pool, roomNumber, startDate, endDate);
+            if (isBooked) {
+                return res.status(409).json({
+                    message: "La habitación no está disponible en las fechas seleccionadas."
+                });
+            }
+
             // 1. Verificar disponibilidad con el servicio SOAP
             const soapResponse = await axios.post('http://localhost:8080/availability', {
                 startDate,
@@ -23,7 +46,9 @@ function createRouter(pool) {
 
             // Verificar si hay habitaciones disponibles
             if (!soapResponse.data || !soapResponse.data.length) {
-                return res.status(400).json({ message: "No rooms available for the selected dates" });
+                return res.status(400).json({ 
+                    message: "No hay habitaciones disponibles para las fechas seleccionadas" 
+                });
             }
 
             // 2. Obtener detalles de la habitación del microservicio
@@ -32,19 +57,19 @@ function createRouter(pool) {
 
             // Verificar si el tipo de habitación coincide
             if (roomDetails.room_type !== roomType) {
-                return res.status(400).json({ 
-                    message: "Room type mismatch. Selected room is not of the requested type" 
+                return res.status(400).json({
+                    message: "Room type mismatch. Selected room is not of the requested type"
                 });
             }
 
             // 3. Crear la reserva en la base de datos
             const [result] = await pool.execute(
                 `INSERT INTO reservations (
-                    room_number, 
+                    room_number,
                     room_type,
-                    customer_name, 
-                    start_date, 
-                    end_date, 
+                    customer_name,
+                    start_date,
+                    end_date,
                     status
                 ) VALUES (?, ?, ?, ?, ?, ?)`,
                 [
@@ -76,25 +101,22 @@ function createRouter(pool) {
 
         } catch (error) {
             console.error('Error creating reservation:', error);
-            
+
             // Manejar diferentes tipos de errores
             if (error.response) {
-                // Error de respuesta de algún servicio
-                return res.status(error.response.status).json({
-                    message: "Service error",
+                return res.status(409).json({
+                    message: "La habitación no está disponible en las fechas seleccionadas.",
                     details: error.response.data
                 });
             }
-            
+
             if (error.request) {
-                // Error de conexión
                 return res.status(503).json({
                     message: "Service unavailable",
                     details: "Could not connect to required services"
                 });
             }
-            
-            // Error general
+
             res.status(500).json({
                 message: "Error processing reservation",
                 details: error.message

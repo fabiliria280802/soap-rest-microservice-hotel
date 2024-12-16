@@ -2,10 +2,11 @@
 <wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
                   xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
                   xmlns:tns="http://luxurystay.com/availability"
+                  xmlns:xs="http://www.w3.org/2001/XMLSchema"
                   targetNamespace="http://luxurystay.com/availability">
     
     <wsdl:types>
-        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:schema targetNamespace="http://luxurystay.com/availability">
             <xs:element name="checkAvailabilityRequest">
                 <xs:complexType>
                     <xs:sequence>
@@ -15,16 +16,42 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="checkAvailabilityResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="availableRooms">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="room" minOccurs="0" maxOccurs="unbounded">
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="roomId" type="xs:string"/>
+                                                <xs:element name="roomType" type="xs:string"/>
+                                                <xs:element name="availableDate" type="xs:string"/>
+                                                <xs:element name="status" type="xs:string"/>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:schema>
     </wsdl:types>
 
-    <wsdl:message name="checkAvailabilityInput">
+    <wsdl:message name="checkAvailabilityRequest">
         <wsdl:part name="parameters" element="tns:checkAvailabilityRequest"/>
+    </wsdl:message>
+    <wsdl:message name="checkAvailabilityResponse">
+        <wsdl:part name="parameters" element="tns:checkAvailabilityResponse"/>
     </wsdl:message>
 
     <wsdl:portType name="AvailabilityPort">
         <wsdl:operation name="checkAvailability">
-            <wsdl:input message="tns:checkAvailabilityInput"/>
+            <wsdl:input message="tns:checkAvailabilityRequest"/>
+            <wsdl:output message="tns:checkAvailabilityResponse"/>
         </wsdl:operation>
     </wsdl:portType>
 
@@ -35,6 +62,9 @@
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
         </wsdl:operation>
     </wsdl:binding>
 

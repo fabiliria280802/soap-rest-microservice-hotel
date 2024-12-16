@@ -1,14 +1,63 @@
-version: '3'
+version: '3.8'
+
 services:
-  soap:
-    build: ./soap
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 28081409
+      MYSQL_DATABASE: luxurystay_inventory
     ports:
-      - "8080:8080"
-  rest:
-    build: ./rest
-    ports:
-      - "3000:3000"
-  inventory:
-    build: ./microservice
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  microservice:
+    build: 
+      context: ./microservice
     ports:
       - "4000:4000"
+    environment:
+      - DATABASE_URL=mysql://root:28081409@mysql:3306/luxurystay_inventory
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  soap-service:
+    build: 
+      context: ./web-soap-service
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=28081409
+      - DB_NAME=luxurystay_availability
+      - NODE_ENV=production
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  rest-api:
+    build: 
+      context: ./api-rest
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=28081409
+      - DB_NAME=luxurystay_reservations
+      - SOAP_SERVICE_URL=http://soap-service:8081
+      - MICROSERVICE_URL=http://microservice:4000
+      - NODE_ENV=production
+    depends_on:
+      - soap-service
+      - microservice
+
+volumes:
+  mysql_data:
