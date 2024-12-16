@@ -6,7 +6,7 @@ Este proyecto es una solución para la gestión centralizada de reservas y dispo
 2. **API REST (Gestión de Reservas)**: Gestiona la creación, consulta y cancelación de reservas.
 3. **Microservicio (Gestión de Inventario)**: Permite registrar y actualizar el estado de las habitaciones.
 
-Nota: Este proyecto esta desarrollado en Node.js, Python y Rust. Si quieres ver el proyecto en inglés, puedes ver el archivo [README.md](README.md).
+Nota: Este proyecto esta desarrollado en Node.js y Rust. Si quieres ver el proyecto en inglés, puedes ver el archivo [README.md](README.md).
 ---
 
 ## **Estructura del Proyecto**
